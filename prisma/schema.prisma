@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum ReservationStatus {
+  REJECTED
+  PENDING
+  CONFIRMED
+  CANCELLED
+  EXPIRED
+  NO_SHOW
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+}
+
+model Guest {
+  id          Int           @id @default(autoincrement())
+  email       String
+  name        String
+  lastname    String
+  phoneNumber String?
+  address     String
+  Reservation Reservation[]
+  locationID  Int?          @unique() // Foreign key for Location
+  location    Location?     @relation(fields: [locationID], references: [id]) // One-to-one with Location
+
+  @@index([email])
+}
+
+model Property {
+  id          Int           @id @default(autoincrement())
+  name        String        @unique
+  maxGuests   Int
+  locationID  Int           @unique()
+  location    Location      @relation(fields: [locationID], references: [id])
+  Reservation Reservation[]
+}
+
+model Reservation {
+  id              Int       @id @default(autoincrement())
+  paymentDeadline DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  notes           String?
+  guestID         Int
+  propertyID      Int
+  guest           Guest     @relation(fields: [guestID], references: [id])
+  property        Property  @relation(fields: [propertyID], references: [id])
+  payments        Payment[]
+
+  @@index([guestID, propertyID])
+}
+
+model Location {
+  id         Int       @id @default(autoincrement())
+  address    String
+  city       String
+  state      String
+  country    String
+  postalCode String
+  guestID    Int?      @unique()
+  propertyID Int?      @unique()
+  Guest      Guest?
+  Property   Property?
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  reservationID Int
+  status        PaymentStatus
+  amount        Float
+  currency      String
+  method        String
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  reservation   Reservation   @relation(fields: [reservationID], references: [id])
+
+  @@index([status])
+}
