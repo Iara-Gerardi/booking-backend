@@ -42,7 +42,6 @@ model Guest {
 model Property {
   id          Int           @id @default(autoincrement())
   name        String        @unique
-  maxGuests   Int
   locationID  Int           @unique()
   location    Location      @relation(fields: [locationID], references: [id])
   Reservation Reservation[]

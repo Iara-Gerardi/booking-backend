@@ -1,9 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post } from '@nestjs/common';
 
 @Controller('/reservations')
 export class ReservationsController {
   @Get()
   getAllReservations() {
-    return 'Todas las propiedades';
+    return '';
+  }
+  @Post()
+  createReservation() {
+    return '';
   }
 }
